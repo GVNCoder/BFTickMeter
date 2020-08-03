@@ -4,12 +4,15 @@ namespace BF3TickMeter.Data
 {
     public class NetworkRateEventArgs : EventArgs
     {
-        public int Tick { get; }
+        public int CurrentRate { get; }
         public int MaxRate { get; }
+        public int MinRate { get; }
 
-        public NetworkRateEventArgs(int tick)
+        public NetworkRateEventArgs(int current, int max, int min)
         {
-            Tick = tick;
+            CurrentRate = current;
+            MaxRate = max;
+            MinRate = min;
         }
     }
 }

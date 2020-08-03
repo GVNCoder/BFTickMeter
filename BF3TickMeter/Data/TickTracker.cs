@@ -20,6 +20,8 @@ namespace BF3TickMeter.Data
         private readonly Timer _updateTickTimer;
 
         private int _ticks;
+        private int _maxTicks;
+        private int _minTicks;
 
         public TickTracker(LivePacketDevice device, string deviceAddress, IPEndPoint from, IPEndPoint to)
         {
@@ -44,9 +46,9 @@ namespace BF3TickMeter.Data
 
         #region Private methods
 
-        private void _OnUpdate(int ticks)
+        private void _OnUpdate(int ticks, int max, int min)
         {
-            Update?.Invoke(this, new NetworkRateEventArgs(ticks));
+            Update?.Invoke(this, new NetworkRateEventArgs(ticks, max, min));
         }
 
         private void _ReadPacketLoop()
@@ -70,25 +72,25 @@ namespace BF3TickMeter.Data
             var packetIpV4 = packet.Ethernet.IpV4;
             var packetIpV4Address = packetIpV4.Destination.ToString();
 
-            // filtering incoming packets
-            //if (packetIpV4Address == _deviceAddress)
-            //{
-                // packet coming to us (download)
-                // catch UDP incoming packet
+            // catch UDP incoming packet
 
-                var sourceIp = packetIpV4.Source.ToString();
-                var destinationIp = packetIpV4.Destination.ToString();
+            var sourceIp = packetIpV4.Source.ToString();
+            var destinationIp = packetIpV4.Destination.ToString();
 
-                if (_fromEndPoint.Address.ToString() != sourceIp ||
-                    _toEndPoint.Address.ToString() != destinationIp) return;
+            if (_fromEndPoint.Address.ToString() != sourceIp ||
+                _toEndPoint.Address.ToString() != destinationIp) return;
 
-                ++_ticks;
-            //}
+            ++_ticks;
         }
 
         private void _UpdateTickTimer(object state)
         {
-            _OnUpdate(_ticks);
+            // set max tick rate
+            if (_ticks > _maxTicks) _maxTicks = _ticks;
+            // set min tick rate
+            if (_ticks < _minTicks && _minTicks != 0) _minTicks = _ticks;
+
+            _OnUpdate(_ticks, _maxTicks, _minTicks);
             _ticks = 0;
         }
 

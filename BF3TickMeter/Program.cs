@@ -53,7 +53,7 @@ namespace BF3TickMeter
             {
                 // update console view here
                 Console.Clear();
-                Console.WriteLine($"Tickrate: {e.Tick}");
+                Console.WriteLine($"Tickrate: Stamp: {e.CurrentRate} Max: {e.MaxRate} Min {e.MinRate}");
             };
             tracker.Start();
 

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1209
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BF3TickMeter", "BF3TickMeter\BF3TickMeter.csproj", "{B8E7A45E-7D0A-496F-828D-FF2D31B91756}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Debug|x64.ActiveCfg = Debug|x64
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Debug|x64.Build.0 = Debug|x64
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Release|x64.ActiveCfg = Release|x64
+		{B8E7A45E-7D0A-496F-828D-FF2D31B91756}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6206765F-28C4-448D-8341-4EDDD32513C0}
+	EndGlobalSection
+EndGlobal

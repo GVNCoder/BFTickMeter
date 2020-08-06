@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+
 using BF3TickMeter.Services;
+
 using PcapDotNet.Core;
 using PcapDotNet.Packets;
+using PcapDotNet.Packets.IpV4;
 
 namespace BF3TickMeter.Data
 {
@@ -21,18 +24,24 @@ namespace BF3TickMeter.Data
         private readonly IPEndPoint _toEndPoint;
         private readonly Thread _packetReadThread;
         private readonly Timer _updateTickTimer;
+        private readonly List<int> _averageBuffer;
+
+        private readonly IpV4Address _dstAddress;
+        private readonly IpV4Address _srcAddress;
+        private readonly uint _dstPort;
+        private readonly uint _srcPort;
 
         private int _ticks;
         private int _maxTicks;
         private int _minTicks;
-        private List<int> _averageBuffer;
 
-        public TickTracker(LivePacketDevice device, string deviceAddress, IPEndPoint from, IPEndPoint to)
+        public TickTracker(LivePacketDevice device, IpV4Address destinationAddress, uint destinationPort, IpV4Address sourceAddress, uint sourcePort)
         {
             _device = device;
-            _deviceAddress = deviceAddress;
-            _fromEndPoint = from;
-            _toEndPoint = to;
+            _dstAddress = destinationAddress;
+            _srcAddress = sourceAddress;
+            _dstPort = destinationPort;
+            _srcPort = sourcePort;
 
             _ticks = 0;
             _maxTicks = 0;
@@ -77,20 +86,22 @@ namespace BF3TickMeter.Data
 
         private void _PacketHandler(Packet packet)
         {
-            var packetIpV4 = packet.Ethernet.IpV4;
-            var packetIpV4Address = packetIpV4.Destination.ToString();
+            // split incoming useful data
+            var incIPv4Payload = packet.Ethernet.IpV4;
+            var incProtoDatagram = incIPv4Payload.Udp;
 
-            // catch incoming packet
+            var dstIp = incIPv4Payload.Destination;
+            var srcIp = incIPv4Payload.Source;
 
-            var sourceIp = packetIpV4.Source.ToString();
-            var destinationIp = packetIpV4.Destination.ToString();
+            var dstPort = incProtoDatagram.DestinationPort;
+            var srcPort = incProtoDatagram.SourcePort;
 
-            // filter incoming packets by IP`s
-            if (_fromEndPoint.Address.ToString() != sourceIp ||
-                _toEndPoint.Address.ToString() != destinationIp) return;
-
-            ++_ticks;
+            // filter packets
+            if (_PassPacket(dstIp, dstPort, srcIp, srcPort)) ++_ticks;
         }
+
+        private bool _PassPacket(IpV4Address dstAddress, uint dstPort, IpV4Address srcAddress, uint srcPort)
+            => dstAddress == _dstAddress && srcAddress == _srcAddress && dstPort == _dstPort && srcPort == _srcPort;
 
         private void _UpdateTickTimer(object state)
         {

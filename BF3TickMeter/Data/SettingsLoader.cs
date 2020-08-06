@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Collections.Generic;
+
 using BF3TickMeter.Services;
+using PcapDotNet.Packets.IpV4;
 
 namespace BF3TickMeter.Data
 {
@@ -14,19 +15,19 @@ namespace BF3TickMeter.Data
         public void Load(out IpSettings settingsInstance, string path)
         {
             var ipStrings = _LoadStringsFromFile(path);
-            var serverEndPoint = _ParseIPEndPoint(ipStrings.First());
-            var clientEndPoint = _ParseIPEndPoint(ipStrings.Last());
+            var sourceEndPoint = _ParseIPEndPoint(ipStrings.First());
+            var destinationEndPoint = _ParseIPEndPoint(ipStrings.Last());
 
             settingsInstance = new IpSettings
             {
-                ServerIPEndPoint = serverEndPoint,
-                ClientIPEndPoint = clientEndPoint
+                SourceIPEndPoint = sourceEndPoint,
+                DestinationIPEndPoint = destinationEndPoint
             };
         }
 
         #region Private methods
 
-        private string[] _LoadStringsFromFile(string path)
+        private static string[] _LoadStringsFromFile(string path)
         {
             var ipStringList = new List<string>(2);
 
@@ -44,10 +45,10 @@ namespace BF3TickMeter.Data
             return ipStringList.ToArray();
         }
 
-        private IPEndPoint _ParseIPEndPoint(string raw)
+        private static IpV4EndPoint _ParseIPEndPoint(string raw)
         {
             var splitInput = raw.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-            return new IPEndPoint(IPAddress.Parse(splitInput.First()), int.Parse(splitInput.Last()));
+            return new IpV4EndPoint { Address = new IpV4Address(splitInput.First()), Port = uint.Parse(splitInput.Last()) };
         }
 
         #endregion

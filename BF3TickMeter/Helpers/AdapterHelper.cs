@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+
 using PcapDotNet.Core;
 
 namespace BF3TickMeter.Helpers

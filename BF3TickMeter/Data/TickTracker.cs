@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
+using System.Collections.Generic;
 
 using BF3TickMeter.Services;
 
@@ -19,29 +18,22 @@ namespace BF3TickMeter.Data
         private const int __AverageBufferSize = 100;
 
         private readonly LivePacketDevice _device;
-        private readonly string _deviceAddress;
-        private readonly IPEndPoint _fromEndPoint;
-        private readonly IPEndPoint _toEndPoint;
         private readonly Thread _packetReadThread;
         private readonly Timer _updateTickTimer;
         private readonly List<int> _averageBuffer;
-
-        private readonly IpV4Address _dstAddress;
-        private readonly IpV4Address _srcAddress;
-        private readonly uint _dstPort;
-        private readonly uint _srcPort;
+        private readonly IpV4EndPoint _dstEndPoint;
+        private readonly IpV4EndPoint _srcEndPoint;
 
         private int _ticks;
         private int _maxTicks;
         private int _minTicks;
 
-        public TickTracker(LivePacketDevice device, IpV4Address destinationAddress, uint destinationPort, IpV4Address sourceAddress, uint sourcePort)
+        public TickTracker(LivePacketDevice device, IpSettings settings)
         {
             _device = device;
-            _dstAddress = destinationAddress;
-            _srcAddress = sourceAddress;
-            _dstPort = destinationPort;
-            _srcPort = sourcePort;
+
+            _dstEndPoint = settings.DestinationIPEndPoint;
+            _srcEndPoint = settings.SourceIPEndPoint;
 
             _ticks = 0;
             _maxTicks = 0;
@@ -101,7 +93,7 @@ namespace BF3TickMeter.Data
         }
 
         private bool _PassPacket(IpV4Address dstAddress, uint dstPort, IpV4Address srcAddress, uint srcPort)
-            => dstAddress == _dstAddress && srcAddress == _srcAddress && dstPort == _dstPort && srcPort == _srcPort;
+            => _dstEndPoint.Equals(dstAddress, dstPort) && _srcEndPoint.Equals(srcAddress, srcPort);
 
         private void _UpdateTickTimer(object state)
         {

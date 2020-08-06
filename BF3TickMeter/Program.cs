@@ -48,7 +48,7 @@ namespace BF3TickMeter
             // clear console
             Console.Clear();
 
-            var tracker = TickTrackerHelper.BuilderTickTracker(adapter, settings);
+            var tracker = new TickTracker(adapter, settings);
             tracker.Update += (sender, e) =>
             {
                 // update console view here

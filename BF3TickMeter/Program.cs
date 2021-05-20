@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
+
 using BF3TickMeter.Data;
 using BF3TickMeter.Helpers;
+
 using PcapDotNet.Core;
 
 namespace BF3TickMeter
 {
-    public class Program
+    public static class Program
     {
         private static readonly string __BaseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.xrists");
 
@@ -36,28 +38,36 @@ namespace BF3TickMeter
             // print adapters with index for select
             PrintAdapters(adapters);
 
-            // getting adapter index from user
-            var adapterUserIndex = SelectAdapterIndex();
-            var adapterIndex = adapterUserIndex - 1;
-            var adapter = adapters[adapterIndex];
-
-            // getting ip settings
-            var settingsLoader = SettingsLoader.CreateInstance();
-            settingsLoader.Load(out var settings, __BaseDirectory);
-
-            // clear console
-            Console.Clear();
-
-            var tracker = new TickTracker(adapter, settings);
-            tracker.Update += (sender, e) =>
+            try
             {
-                // update console view here
-                Console.Clear();
-                Console.WriteLine($"Tickrate: Stamp: {e.CurrentRate} Avg: {e.Average} Max: {e.MaxRate} Min {e.MinRate}");
-            };
-            tracker.Start();
+                // getting adapter index from user
+                var adapterUserIndex = SelectAdapterIndex();
+                var adapterIndex = adapterUserIndex - 1;
+                var adapter = adapters[adapterIndex];
 
-            Console.Read();
+                // getting ip settings
+                var settingsLoader = SettingsLoader.CreateInstance();
+                var settings = settingsLoader.Load(__BaseDirectory);
+
+                // clear console
+                Console.Clear();
+
+                var tracker = new TickTracker(adapter, settings);
+                tracker.Update += (sender, e) =>
+                {
+                    // update console view here
+                    Console.Clear();
+                    Console.WriteLine($"Tickrate: Stamp: {e.CurrentRate} Avg: {e.Average} Max: {e.MaxRate} Min {e.MinRate}");
+                };
+
+                tracker.Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            Console.ReadKey();
         }
     }
 }

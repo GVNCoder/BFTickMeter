@@ -1,9 +1,11 @@
 ﻿using BF3TickMeter.Data;
 
+// ReSharper disable TypeParameterCanBeVariant
+
 namespace BF3TickMeter.Services
 {
-    public interface ISettingsLoader
+    public interface ISettingsLoader<T>
     {
-        void Load(out IpSettings instance, string path);
+        T Load(string path);
     }
 }

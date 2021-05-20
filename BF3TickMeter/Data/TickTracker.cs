@@ -32,8 +32,8 @@ namespace BF3TickMeter.Data
         {
             _device = device;
 
-            _dstEndPoint = settings.DestinationIPEndPoint;
-            _srcEndPoint = settings.SourceIPEndPoint;
+            _dstEndPoint = settings.GameServerEndPoint;
+            _srcEndPoint = settings.ClientEndPoint;
 
             _ticks = 0;
             _maxTicks = 0;

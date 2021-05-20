@@ -4,51 +4,91 @@ using System.Linq;
 using System.Collections.Generic;
 
 using BF3TickMeter.Services;
+
 using PcapDotNet.Packets.IpV4;
 
 namespace BF3TickMeter.Data
 {
-    public class SettingsLoader : ISettingsLoader
+    public class SettingsLoader : ISettingsLoader<IpSettings>
     {
-        public static ISettingsLoader CreateInstance() => new SettingsLoader();
+        #region Factory method
 
-        public void Load(out IpSettings settingsInstance, string path)
+        public static ISettingsLoader<IpSettings> CreateInstance() => new SettingsLoader();
+
+        #endregion
+
+        #region ISettingsLoader
+
+        public IpSettings Load(string path)
         {
-            var ipStrings = _LoadStringsFromFile(path);
-            var sourceEndPoint = _ParseIPEndPoint(ipStrings.First());
-            var destinationEndPoint = _ParseIPEndPoint(ipStrings.Last());
+            // get ip strings from file
+            var ipStrings = _ReadIpStringsFromFile(path);
 
-            settingsInstance = new IpSettings
-            {
-                SourceIPEndPoint = sourceEndPoint,
-                DestinationIPEndPoint = destinationEndPoint
-            };
+            // try parse
+            var settings = _ParseIpSettings(ipStrings);
+
+            return settings;
         }
+
+        #endregion
 
         #region Private methods
 
-        private static string[] _LoadStringsFromFile(string path)
+        private static string[] _ReadIpStringsFromFile(string filePath)
         {
-            var ipStringList = new List<string>(2);
+            var ipStrings = new List<string>(2);
 
-            using (var reader = File.OpenText(path))
+            using (var fileReader = File.OpenText(filePath))
             {
-                while (!reader.EndOfStream)
+                while (! fileReader.EndOfStream)
                 {
-                    var line = reader.ReadLine();
-                    if (string.IsNullOrEmpty(line) || line.StartsWith("#")) continue; // skip comments
-                    
-                    ipStringList.Add(line);
+                    var contentLine = fileReader.ReadLine();
+
+                    // validate content line
+                    // if it is empty or white space or is comment (startsWith #) = skip
+                    if (string.IsNullOrWhiteSpace(contentLine) || contentLine.StartsWith("#"))
+                    {
+                        continue;
+                    }
+
+                    ipStrings.Add(contentLine);
                 }
             }
 
-            return ipStringList.ToArray();
+            return ipStrings.ToArray();
+        }
+
+        private static IpSettings _ParseIpSettings(IReadOnlyCollection<string> ipStrings)
+        {
+            if (ipStrings.Count != 2)
+            {
+                throw new Exception("The configuration file was not in the correct format.");
+            }
+
+            var firstEndPoint = _ParseIPEndPoint(ipStrings.First());
+            var secondEndPoint = _ParseIPEndPoint(ipStrings.Last());
+
+            return new IpSettings
+            {
+                GameServerEndPoint = firstEndPoint,
+                ClientEndPoint = secondEndPoint
+            };
         }
 
         private static IpV4EndPoint _ParseIPEndPoint(string raw)
         {
-            var splitInput = raw.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-            return new IpV4EndPoint { Address = new IpV4Address(splitInput.First()), Port = uint.Parse(splitInput.Last()) };
+            var ipPortPair = raw.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (ipPortPair.Length != 2)
+            {
+                throw new Exception("The EndPoint line was not in the correct format (xxx.xxx.xxx.xxx:xxxxx).");
+            }
+
+            return new IpV4EndPoint
+            {
+                Address = new IpV4Address(ipPortPair.First()),
+                Port = uint.Parse(ipPortPair.Last())
+            };
         }
 
         #endregion

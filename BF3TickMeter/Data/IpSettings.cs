@@ -2,7 +2,7 @@
 {
     public class IpSettings
     {
-        public IpV4EndPoint SourceIPEndPoint { get; set; }
-        public IpV4EndPoint DestinationIPEndPoint { get; set; }
+        public IpV4EndPoint GameServerEndPoint { get; set; }
+        public IpV4EndPoint ClientEndPoint { get; set; }
     }
 }

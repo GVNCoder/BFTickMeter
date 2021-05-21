@@ -16,6 +16,11 @@ namespace BF3TickMeter.Data
         public bool Equals(IpV4Address address, uint port)
             => Address == address && Port == port;
 
+        public override string ToString()
+        {
+            return $"{Address}:{Port}";
+        }
+
         #endregion
     }
 }

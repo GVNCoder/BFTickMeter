@@ -79,6 +79,7 @@
     <Compile Include="Data\IpV4EndPoint.cs" />
     <Compile Include="Data\NetworkRateEventArgs.cs" />
     <Compile Include="Data\SettingsLoader.cs" />
+    <Compile Include="Data\TickrateStamp.cs" />
     <Compile Include="Data\TickTracker.cs" />
     <Compile Include="Helpers\AdapterHelper.cs" />
     <Compile Include="Program.cs" />

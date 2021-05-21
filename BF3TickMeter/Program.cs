@@ -11,43 +11,56 @@ namespace BF3TickMeter
 {
     public static class Program
     {
-        private static readonly string __BaseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.xrists");
+        private static readonly string _SettingsFilePath =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.xv");
+
+        #region Private helper
 
         private static void PrintAdapters(IList<LivePacketDevice> adapters)
         {
             for (var i = 0; i < adapters.Count; i++)
             {
-                var livePacketDevice = adapters[i];
-                Console.WriteLine($"INDEX: {i + 1} IP: {AdapterHelper.ExtractAdapterIp(livePacketDevice)} Name: {livePacketDevice.Description}");
+                var adapter = adapters[i];
+
+                Console.WriteLine($"Index: {i + 1}\n\tDevice Ip: {AdapterHelper.ExtractAdapterIp(adapter)}\n\tDevice Name: {adapter.Description}\n");
             }
         }
 
         private static int SelectAdapterIndex()
         {
             Console.WriteLine();
-            Console.Write("Select adapter index: ");
-            var input = Console.ReadLine();
+            Console.Write("Enter adapter Index to select it: ");
 
-            return int.Parse(input);
+            // get user input
+            var input = Console.ReadLine();
+            // ReSharper disable once AssignNullToNotNullAttribute
+            var selectedAdapterIndex = int.Parse(input);
+
+            return selectedAdapterIndex;
         }
+
+        #endregion
 
         public static void Main(string[] args)
         {
             // get all machine adapters
             var adapters = AdapterHelper.GetAdapters();
+
             // print adapters with index for select
             PrintAdapters(adapters);
 
             try
             {
-                // getting adapter index from user
+                // get adapter index from user
                 var adapterUserIndex = SelectAdapterIndex();
                 var adapterIndex = adapterUserIndex - 1;
+
+                // select adapter by index
                 var adapter = adapters[adapterIndex];
 
-                // getting ip settings
+                // get ip settings
                 var settingsLoader = SettingsLoader.CreateInstance();
-                var settings = settingsLoader.Load(__BaseDirectory);
+                var settings = settingsLoader.Load(_SettingsFilePath);
 
                 // clear console
                 Console.Clear();
@@ -57,7 +70,12 @@ namespace BF3TickMeter
                 {
                     // update console view here
                     Console.Clear();
-                    Console.WriteLine($"Tickrate: Stamp: {e.CurrentRate} Avg: {e.Average} Max: {e.MaxRate} Min {e.MinRate}");
+                    
+                    // print IpSettings
+                    Console.WriteLine($"GameServer IP: {settings.GameServerEndPoint}\nClient IP: {settings.ClientEndPoint}");
+
+                    // print tickrate stamps
+                    Console.WriteLine($"Incoming tickrate: {e.IncomingTickrate}\nOutgoing tickrate: {e.OutgoingTickrate}");
                 };
 
                 tracker.Start();
